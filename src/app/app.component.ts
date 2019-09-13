@@ -23,6 +23,16 @@ enum Panels {
   year = 'year',
 }
 
+enum DayOfWeek {
+  SUN,
+  MON,
+  TUE,
+  WED,
+  THU,
+  FRI,
+  SAT
+}
+
 interface IDateValue {
   from: any;
   to: any;
@@ -32,6 +42,10 @@ type PanelType = keyof typeof Panels;
 
 const localeConfig = {
   locale: ko,
+};
+
+const weekStartConfig = {
+  weekStartsOn: DayOfWeek.MON
 };
 
 @Component({
@@ -90,12 +104,10 @@ export class AppComponent implements OnInit {
   }
 
   private updateCalendarDays() {
-    const days = [];
-
     const firstDayOfMonth = startOfMonth(new Date(this.current));
     const lastDayOfMonth = endOfMonth(new Date(this.current));
-    const firstWeekDay = startOfWeek(new Date(firstDayOfMonth));
-    const lastWeekDay = endOfWeek(new Date(lastDayOfMonth));
+    const firstWeekDay = startOfWeek(new Date(firstDayOfMonth), weekStartConfig);
+    const lastWeekDay = endOfWeek(new Date(lastDayOfMonth), weekStartConfig);
     const currentDate = new Date(this.current);
 
     const calendarDays = eachDayOfInterval({
@@ -121,38 +133,6 @@ export class AppComponent implements OnInit {
 
     this.monthDays = sliceWeek(calendarDays);
     console.log('this.monthDays :: ', this.monthDays);
-
-    // calendarDays.
-      // .map((date) => {
-      //   return {
-      //     date,
-      //     currentMonth: isSameMonth(currentDate, date)
-      //   };
-      // });
-
-    console.log('this.monthDays :: ', this.monthDays);
-    // const days = [];
-    // const lastDayOfMonth = endOfMonth(new Date(this.current));
-    // const firstDayOfMonth = startOfMonth(new Date(this.current));
-    // const nbDaysOfMonth = (+format(firstDayOfMonth, 'd', localeConfig) - 1) % 7;
-    // const nowDate = new Date(this.now);
-    // const currentDate = new Date(this.current);
-    //
-    // let day = subDays(firstDayOfMonth, nbDaysOfMonth);
-    // while (isBefore(day, lastDayOfMonth) || days.length % 7 > 0) {
-    //   days.push({
-    //     date: day,
-    //     stringDate: format(day, 'yyyy-MM-dd EE', localeConfig),
-    //     selectable: (this.future && isAfter(day, nowDate))
-    //       || (this.past && isBefore(day, nowDate))
-    //       || isSameDay(day, nowDate),
-    //     currentMonth: isSameMonth(currentDate, day),
-    //   });
-    //   day = addDays(day, 1);
-    // }
-    // this.monthDays = days;
-    // console.log('this.current :: ', this.current);
-    // console.log('this.monthDays :: ', this.monthDays);
   }
 
   onPanelChange(panel: Panels) {
