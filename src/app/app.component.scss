@@ -25,5 +25,17 @@ $text-weak: #969696;
         background-color: #ebebeb;
       }
     }
+    .panel-button--active {
+      background-color: #ebebeb;
+    }
+  }
+  .date-calendar-box {
+    width: 100%;
+    border: 1px solid $text-normal;
+
+    .date-calendar-header {
+      width: 100%;
+      min-height: 30px;
+    }
   }
 }

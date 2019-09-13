@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ko } from 'date-fns/locale';
 import {
-  addDays,
+  addDays, addMonths,
   endOfMonth,
   format,
   isAfter,
@@ -11,10 +11,10 @@ import {
   isValid,
   parse,
   startOfMonth,
-  subDays
+  subDays, subMonths
 } from 'date-fns';
 
-enum DateRange {
+enum Panels {
   range = 'range',
   day = 'day',
   week = 'week',
@@ -29,7 +29,7 @@ interface IDateValue {
 }
 
 
-type DateType = keyof typeof DateRange;
+type PanelType = keyof typeof Panels;
 
 @Component({
   selector: 'app-root',
@@ -43,15 +43,16 @@ export class AppComponent implements OnInit {
     from: null,
     to: null,
   };
-  @Input() panel: DateType = DateRange.range;
+  @Input() panel: PanelType = Panels.week;
 
-  panels: DateType[] = [
-    DateRange.range,
-    DateRange.week,
-    DateRange.month,
-    DateRange.quarter,
-    DateRange.year,
+  panels: PanelType[] = [
+    Panels.range,
+    Panels.week,
+    Panels.month,
+    Panels.quarter,
+    Panels.year,
   ];
+  currentPanel: PanelType;
   monthDays: any[] = [];
   current: any;
   future = true;
@@ -90,5 +91,17 @@ export class AppComponent implements OnInit {
       day = addDays(day, 1);
     }
     this.monthDays = days;
+    console.log('this.current :: ', this.current);
+    console.log('this.monthDays :: ', this.monthDays);
+  }
+
+  onPanelChange(panel: Panels) {
+    this.currentPanel = panel;
+    console.log('this.currentPanel :: ', this.currentPanel);
+  }
+
+  onChangeMonth(diffMonth: number) {
+    this.current = addMonths(new Date(this.current), diffMonth);
+    this.updateCalendarDays();
   }
 }

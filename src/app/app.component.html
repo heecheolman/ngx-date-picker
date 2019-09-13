@@ -3,7 +3,36 @@
 <div class="date-container">
   <div class="date-panel-box">
     <ng-container *ngFor="let panel of panels;">
-      <button class="date-panel-button">{{ panel }}</button>
+      <button
+        class="date-panel-button"
+        [ngClass]="{ 'panel-button--active': this.currentPanel === panel }"
+        (click)="onPanelChange(panel)"
+      >{{ panel }}</button>
+    </ng-container>
+  </div>
+
+  <div class="date-calendar-box">
+    <ng-container [ngSwitch]="currentPanel">
+      <div *ngSwitchCase="'range'">
+        <h3>range</h3>
+      </div>
+      <div *ngSwitchCase="'week'">
+        <h3>week</h3>
+        <div class="date-calendar-header">
+          <button (click)="onChangeMonth(-1)"><<</button>
+          <span>{{ this.current | json }}</span>
+          <button (click)="onChangeMonth(1)">>></button>
+        </div>
+      </div>
+      <div *ngSwitchCase="'month'">
+        <h3>month</h3>
+      </div>
+      <div *ngSwitchCase="'quarter'">
+        <h3>quarter</h3>
+      </div>
+      <div *ngSwitchCase="'year'">
+        <h3>year</h3>
+      </div>
     </ng-container>
   </div>
 </div>
