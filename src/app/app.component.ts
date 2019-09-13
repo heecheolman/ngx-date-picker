@@ -15,6 +15,7 @@ import {
 } from 'date-fns';
 
 enum DateRange {
+  range = 'range',
   day = 'day',
   week = 'week',
   month = 'month',
@@ -42,10 +43,10 @@ export class AppComponent implements OnInit {
     from: null,
     to: null,
   };
-  @Input() panel: DateType;
+  @Input() panel: DateType = DateRange.range;
 
   panels: DateType[] = [
-    DateRange.day,
+    DateRange.range,
     DateRange.week,
     DateRange.month,
     DateRange.quarter,
@@ -53,15 +54,15 @@ export class AppComponent implements OnInit {
   ];
   monthDays: any[] = [];
   current: any;
-  future: any;
-  past: any;
+  future = true;
+  past = true;
 
   constructor() {
   }
 
   ngOnInit(): void {
     this.initDateValue();
-    this.updateCalendar();
+    this.updateCalendarDays();
   }
 
   private initDateValue(): void {
@@ -69,28 +70,25 @@ export class AppComponent implements OnInit {
     this.current = isValid(parse(this.dateValue.to, 'yyyy-MM-dd', new Date())) || this.now;
   }
 
-  private updateCalendar() {
-    console.log(this.now);
-    console.log(this.current);
+  private updateCalendarDays() {
     const days = [];
     const lastDayOfMonth = endOfMonth(new Date(this.current));
     const firstDayOfMonth = startOfMonth(new Date(this.current));
     const nbDaysOfMonth = (+format(firstDayOfMonth, 'd') - 1) % 7;
+    const nowDate = new Date(this.now);
+    const currentDate = new Date(this.current);
 
     let day = subDays(firstDayOfMonth, nbDaysOfMonth);
-    // while (isBefore(day, lastDayOfMonth) || days.length % 7 > 0) {
-    //   days.push({
-    //     date: day,
-    //     selectable: (this.future && isAfter(day, this.now))
-    //       || (this.past && isBefore(day, this.now))
-    //       || isSameDay(day, this.now),
-    //     currentMonth: isSameMonth(this.current, day),
-    //   });
-    //   day = addDays(day, 1);
-    // }
-    // this.monthDays = days;
-    //
-    // console.log('day :: ', day);
-    // console.log('this.monthDays :: ', this.monthDays);
+    while (isBefore(day, lastDayOfMonth) || days.length % 7 > 0) {
+      days.push({
+        date: day,
+        selectable: (this.future && isAfter(day, nowDate))
+          || (this.past && isBefore(day, nowDate))
+          || isSameDay(day, nowDate),
+        currentMonth: isSameMonth(currentDate, day),
+      });
+      day = addDays(day, 1);
+    }
+    this.monthDays = days;
   }
 }

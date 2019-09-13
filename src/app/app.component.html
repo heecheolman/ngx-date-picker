@@ -1,7 +1,9 @@
 <h1>Ngx Date Picker</h1>
 
-<ng-container *ngFor="let panel of panels;">
-  <div>
-    <button>panel</button>
+<div class="date-container">
+  <div class="date-panel-box">
+    <ng-container *ngFor="let panel of panels;">
+      <button class="date-panel-button">{{ panel }}</button>
+    </ng-container>
   </div>
-</ng-container>
+</div>

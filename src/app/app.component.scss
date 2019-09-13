@@ -1,0 +1,29 @@
+$text-normal: #3d3d3d;
+$text-weak: #969696;
+
+.date-container {
+  width: 100%;
+  height: auto;
+  padding: 20px;
+
+  .date-panel-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 60px;
+
+    .date-panel-button {
+      padding: 10px 15px;
+      border-radius: 4px;
+      outline: 0;
+      border: 1px solid $text-weak;
+      cursor: pointer;
+      color: $text-weak;
+
+      &:hover {
+        background-color: #ebebeb;
+      }
+    }
+  }
+}
