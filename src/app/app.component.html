@@ -1,17 +1,17 @@
 <h1>Ngx Date Picker</h1>
 
-<div class="date-container">
-  <div class="date-panel-box">
+<div class="mj-daterange-picker" #datePicker>
+  <div class="panels-choices">
     <ng-container *ngFor="let panel of panels;">
       <button
-        class="date-panel-button"
+        class="panel-button"
         [ngClass]="{ 'panel-button--active': this.currentPanel === panel }"
         (click)="onPanelChange(panel)"
       >{{ panel }}</button>
     </ng-container>
   </div>
 
-  <div class="date-calendar-box">
+  <div class="mj-calendar">
     <ng-container [ngSwitch]="currentPanel">
       <div *ngSwitchCase="'range'">
         <h3>range</h3>
@@ -24,17 +24,22 @@
           <button (click)="onChangeMonth(1)">>></button>
         </div>
         <div class="date-calendar-board">
-          <div class="date-calendar-week">
+          <div class="calendar-days">
             <ng-container *ngFor="let day of monthDays[0]">
-              <div class="date-calendar-day">
+              <div class="day">
                 {{ day.date | date: 'EEEE' }}
               </div>
             </ng-container>
           </div>
           <ng-container *ngFor="let week of monthDays">
-            <div class="date-calendar-week">
+            <div class="calendar-days">
               <ng-container *ngFor="let day of week">
-                <div class="date-calendar-day" [ngClass]="day.currentMonth ? 'current-month' : 'another-month'">
+                <div
+                  class="day"
+                  [ngClass]="day.currentMonth ? 'is-current-month' : ''"
+                  (click)="onSelectDay(day.date)"
+                  (mouseover)="onHoverizeDay(day.date)"
+                >
                   {{ day.date | date: 'dd' }}
                 </div>
               </ng-container>
@@ -54,3 +59,11 @@
     </ng-container>
   </div>
 </div>
+
+<h1>
+  {{ dateValue?.from | date: 'yyyy-MM-dd EEEE' | json }}
+  ~
+  {{ dateValue?.to | date: 'yyyy-MM-dd EEEE' | json }}
+</h1>
+
+<h3>{{  hoverRange | json  }}</h3>

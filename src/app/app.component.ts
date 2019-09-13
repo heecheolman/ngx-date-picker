@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { ko } from 'date-fns/locale';
 import {
   addDays, addMonths, eachDayOfInterval,
@@ -54,6 +54,7 @@ const weekStartConfig = {
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+  @ViewChild('datePicker') elementRef: ElementRef<any>
   private now;
 
   @Input() dateValue: IDateValue = {
@@ -70,23 +71,21 @@ export class AppComponent implements OnInit {
     Panels.year,
   ];
   currentPanel: PanelType;
-  private _dayOfWeek: any;
-  get dayOfWeek() {
-    if (!Array.isArray(this.monthDays)) {
-      return [];
-    }
-    const days = this.monthDays.slice(0, 7);
-    const week = [];
-    for (const day of days) {
-      week.push({
-        name: format(day.date, 'dd', localeConfig)
-      });
-    }
-    return week;
-  }
-
   monthDays: any[] = [];
   current: any;
+  hoverRange: any[] = [];
+  theme = {
+    primary: '#3297DB',
+    secondary: '#2D3E50',
+    ternary: '#93A0BD',
+    border: '#e6e6e6',
+    light: '#ffffff',
+    dark: '#000000',
+    hovers: {
+      day: '#CCC',
+      range: '#e6e6e6'
+    }
+  };
   future = true;
   past = true;
 
@@ -96,6 +95,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.initDateValue();
     this.updateCalendarDays();
+    this.cssProps();
   }
 
   private initDateValue(): void {
@@ -122,6 +122,9 @@ export class AppComponent implements OnInit {
         .slice(start, start + 7)
         .map(date => ({
           date,
+          selectable: this.future && isAfter(new Date(date), new Date(this.now))
+            || this.past && isBefore(new Date(date), new Date(this.now))
+            || isSameDay(new Date(date), new Date(this.now)),
           currentMonth: isSameMonth(currentDate, date)
         }));
       const months = [
@@ -143,5 +146,38 @@ export class AppComponent implements OnInit {
   onChangeMonth(diffMonth: number) {
     this.current = addMonths(new Date(this.current), diffMonth);
     this.updateCalendarDays();
+  }
+
+  onSelectDay(date) {
+    if ((this.dateValue.from && this.dateValue.to) || (!this.dateValue.from && !this.dateValue.to)) {
+      this.dateValue.from = date;
+      this.dateValue.to = null;
+    } else if (this.dateValue.from && !this.dateValue.to) {
+      if (isBefore(date, this.dateValue.from)) {
+        this.dateValue.from = date;
+      } else {
+        this.dateValue.to = date;
+        this.hoverRange = [];
+      }
+    }
+  }
+
+  onHoverizeDay(date) {
+    this.hoverRange = [this.dateValue.from, date];
+  }
+
+  cssProps() {
+    const styles = {
+      '--primary-color': this.theme.primary,
+      '--hover-day-color': this.theme.hovers.day,
+      '--hover-range-color': this.theme.hovers.range,
+      '--secondary-color': this.theme.secondary,
+      '--ternary-color': this.theme.ternary,
+      '--normal-color': this.theme.light,
+      '--contrast-color': this.theme.dark,
+      '--border-color': this.theme.border
+    };
+
+    Object.entries(styles).map(([key, style]) => this.elementRef.nativeElement.style.setProperty(key, style));
   }
 }
