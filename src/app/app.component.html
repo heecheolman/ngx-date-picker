@@ -23,6 +23,24 @@
           <span>{{ this.current | json }}</span>
           <button (click)="onChangeMonth(1)">>></button>
         </div>
+        <div class="date-calendar-board">
+          <div class="date-calendar-week">
+            <ng-container *ngFor="let day of monthDays[0]">
+              <div class="date-calendar-day">
+                {{ day.date | date: 'EEEE' }}
+              </div>
+            </ng-container>
+          </div>
+          <ng-container *ngFor="let week of monthDays">
+            <div class="date-calendar-week">
+              <ng-container *ngFor="let day of week">
+                <div class="date-calendar-day" [ngClass]="day.currentMonth ? 'current-month' : 'another-month'">
+                  {{ day.date | date: 'dd' }}
+                </div>
+              </ng-container>
+            </div>
+          </ng-container>
+        </div>
       </div>
       <div *ngSwitchCase="'month'">
         <h3>month</h3>

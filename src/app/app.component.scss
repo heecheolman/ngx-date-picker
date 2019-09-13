@@ -1,5 +1,5 @@
 $text-normal: #3d3d3d;
-$text-weak: #969696;
+$text-weak: #adadad;
 
 .date-container {
   width: 100%;
@@ -36,6 +36,31 @@ $text-weak: #969696;
     .date-calendar-header {
       width: 100%;
       min-height: 30px;
+    }
+    .date-calendar-board {
+      text-align: center;
+
+      .date-calendar-week {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .date-calendar-day {
+          flex: 1;
+          padding: 15px;
+          cursor: pointer;
+
+          &:hover {
+            background-color: $text-weak;
+          }
+        }
+      }
+    }
+    .current-month {
+      color: $text-normal;
+    }
+    .another-month {
+      color: $text-weak;
     }
   }
 }
