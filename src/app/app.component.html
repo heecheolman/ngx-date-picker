@@ -21,10 +21,10 @@
           <button (click)="onChangeMonth(1)">>></button>
         </div>
         <div class="date-calendar-board">
-          <div class="calendar-days">
+          <div class="calendar-days-name">
             <ng-container *ngFor="let day of monthDays[0]">
               <div class="day">
-                {{ day.date | date: 'EEEE' }}
+                {{ day.date | date: 'EE': '': 'ko' }}
               </div>
             </ng-container>
           </div>
@@ -52,10 +52,10 @@
           <button (click)="onChangeMonth(1)">>></button>
         </div>
         <div class="date-calendar-board">
-          <div class="calendar-days">
+          <div class="calendar-days-name">
             <ng-container *ngFor="let day of monthDays[0]">
               <div class="day">
-                {{ day.date | date: 'EEEE' }}
+                {{ day.date | date: 'EE': '': 'ko' }}
               </div>
             </ng-container>
           </div>
@@ -89,9 +89,11 @@
 </div>
 
 <h1>
-  {{ dateValue?.from | date: 'yyyy-MM-dd EEEE' | json }}
+  {{ dateValue?.from | date: 'yyyy-MM-dd EEEE': '': 'ko' | json }}
   ~
-  {{ dateValue?.to | date: 'yyyy-MM-dd EEEE' | json }}
+  {{ dateValue?.to | date: 'yyyy-MM-dd EEEE': '': 'ko' | json }}
 </h1>
 
 <h3>{{  hoverRange | json  }}</h3>
+
+<h2>{{ sampleKoDate | json }}</h2>

@@ -63,6 +63,8 @@ export class AppComponent implements OnInit {
   };
   @Input() panel: PanelType = Panels.range;
 
+  sampleKoDate = format(new Date(), 'yyyy-MM-dd EE', { ...localeConfig });
+
   panels: PanelType[] = [
     Panels.range,
     Panels.week,
@@ -106,8 +108,8 @@ export class AppComponent implements OnInit {
   private updateCalendarDays() {
     const firstDayOfMonth = startOfMonth(new Date(this.current));
     const lastDayOfMonth = endOfMonth(new Date(this.current));
-    const firstWeekDay = startOfWeek(new Date(firstDayOfMonth), weekStartConfig);
-    const lastWeekDay = endOfWeek(new Date(lastDayOfMonth), weekStartConfig);
+    const firstWeekDay = startOfWeek(new Date(firstDayOfMonth), { ...weekStartConfig, ...localeConfig });
+    const lastWeekDay = endOfWeek(new Date(lastDayOfMonth), { ...weekStartConfig, ...localeConfig });
     const currentDate = new Date(this.current);
 
     const calendarDays = eachDayOfInterval({
@@ -135,6 +137,7 @@ export class AppComponent implements OnInit {
     };
 
     this.monthDays = sliceWeek(calendarDays);
+    console.log('this.monthDays :: ', this.monthDays);
   }
 
   onPanelChange(panel: Panels) {
@@ -152,8 +155,8 @@ export class AppComponent implements OnInit {
 
   onSelectDay(date) {
     if (this.currentPanel === Panels.week) {
-      this.dateValue.from = startOfWeek(date, { weekStartsOn: DayOfWeek.MON });
-      this.dateValue.to = endOfWeek(date, { weekStartsOn: DayOfWeek.MON });
+      this.dateValue.from = startOfWeek(date, { ...weekStartConfig, ...localeConfig });
+      this.dateValue.to = endOfWeek(date, { ...weekStartConfig, ...localeConfig });
       return;
     }
     if ((this.dateValue.from && this.dateValue.to) || (!this.dateValue.from && !this.dateValue.to)) {
@@ -176,7 +179,7 @@ export class AppComponent implements OnInit {
       return;
     }
     this.hoverRange = this.currentPanel === Panels.week
-      ? [startOfWeek(date, { weekStartsOn: DayOfWeek.MON }), endOfWeek(date, { weekStartsOn: DayOfWeek.MON })]
+      ? [startOfWeek(date, { ...weekStartConfig, ...localeConfig }), endOfWeek(date, { ...weekStartConfig, ...localeConfig })]
       : [this.dateValue.from, date];
   }
 
