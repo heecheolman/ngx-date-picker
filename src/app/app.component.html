@@ -11,10 +11,38 @@
     </ng-container>
   </div>
 
-  <div class="mj-calendar">
+  <div class="mj-calendar" [ngClass]="currentPanel === 'week' ? 'mj-calendar-week' : 'mj-calendar-days'">
     <ng-container [ngSwitch]="currentPanel">
       <div *ngSwitchCase="'range'">
         <h3>range</h3>
+        <div class="date-calendar-header">
+          <button (click)="onChangeMonth(-1)"><<</button>
+          <span>{{ this.current | json }}</span>
+          <button (click)="onChangeMonth(1)">>></button>
+        </div>
+        <div class="date-calendar-board">
+          <div class="calendar-days">
+            <ng-container *ngFor="let day of monthDays[0]">
+              <div class="day">
+                {{ day.date | date: 'EEEE' }}
+              </div>
+            </ng-container>
+          </div>
+          <ng-container *ngFor="let week of monthDays">
+            <div class="calendar-days">
+              <ng-container *ngFor="let day of week">
+                <div
+                  class="day"
+                  [ngClass]="dayCssProvider(day)"
+                  (click)="onSelectDay(day.date)"
+                  (mouseover)="onHoverizeDay(day.date)"
+                >
+                  {{ day.date | date: 'dd' }}
+                </div>
+              </ng-container>
+            </div>
+          </ng-container>
+        </div>
       </div>
       <div *ngSwitchCase="'week'">
         <h3>week</h3>
@@ -36,7 +64,7 @@
               <ng-container *ngFor="let day of week">
                 <div
                   class="day"
-                  [ngClass]="day.currentMonth ? 'is-current-month' : ''"
+                  [ngClass]="dayCssProvider(day)"
                   (click)="onSelectDay(day.date)"
                   (mouseover)="onHoverizeDay(day.date)"
                 >

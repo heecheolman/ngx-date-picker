@@ -8,7 +8,7 @@ import {
   isBefore,
   isSameDay,
   isSameMonth,
-  isValid,
+  isValid, isWithinInterval,
   parse, parseISO,
   startOfMonth, startOfWeek,
   subDays
@@ -54,14 +54,14 @@ const weekStartConfig = {
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  @ViewChild('datePicker') elementRef: ElementRef<any>
+  @ViewChild('datePicker') elementRef: ElementRef<any>;
   private now;
 
   @Input() dateValue: IDateValue = {
     from: null,
     to: null,
   };
-  @Input() panel: PanelType = Panels.week;
+  @Input() panel: PanelType = Panels.range;
 
   panels: PanelType[] = [
     Panels.range,
@@ -135,12 +135,14 @@ export class AppComponent implements OnInit {
     };
 
     this.monthDays = sliceWeek(calendarDays);
-    console.log('this.monthDays :: ', this.monthDays);
   }
 
   onPanelChange(panel: Panels) {
     this.currentPanel = panel;
-    console.log('this.currentPanel :: ', this.currentPanel);
+    this.dateValue = {
+      from: null,
+      to: null
+    };
   }
 
   onChangeMonth(diffMonth: number) {
@@ -149,6 +151,11 @@ export class AppComponent implements OnInit {
   }
 
   onSelectDay(date) {
+    if (this.currentPanel === Panels.week) {
+      this.dateValue.from = startOfWeek(date, { weekStartsOn: DayOfWeek.MON });
+      this.dateValue.to = endOfWeek(date, { weekStartsOn: DayOfWeek.MON });
+      return;
+    }
     if ((this.dateValue.from && this.dateValue.to) || (!this.dateValue.from && !this.dateValue.to)) {
       this.dateValue.from = date;
       this.dateValue.to = null;
@@ -163,7 +170,14 @@ export class AppComponent implements OnInit {
   }
 
   onHoverizeDay(date) {
-    this.hoverRange = [this.dateValue.from, date];
+    if (this.currentPanel !== Panels.week &&
+      (!(this.dateValue.from && !this.dateValue.to) || (isBefore(new Date(date), this.dateValue.from)))) {
+      this.hoverRange = [];
+      return;
+    }
+    this.hoverRange = this.currentPanel === Panels.week
+      ? [startOfWeek(date, { weekStartsOn: DayOfWeek.MON }), endOfWeek(date, { weekStartsOn: DayOfWeek.MON })]
+      : [this.dateValue.from, date];
   }
 
   cssProps() {
@@ -179,5 +193,61 @@ export class AppComponent implements OnInit {
     };
 
     Object.entries(styles).map(([key, style]) => this.elementRef.nativeElement.style.setProperty(key, style));
+  }
+
+  dayCssProvider(day): any {
+    const classObj: any = {
+      'is-current-month': false,
+      'is-selected': false,
+      'is-disabled': false,
+      'is-today': false,
+      'is-first-range': false,
+      'is-edge-range': false,
+      'is-last-range': false,
+      'is-in-range': false,
+    };
+    const dayDate = new Date(day.date);
+    const nowDate = new Date(this.now);
+    if (day.currentMonth) {
+      classObj['is-current-month'] = true;
+    }
+    if (
+      this.dateValue.from && this.dateValue.to &&
+      isWithinInterval(dayDate, {
+        start: new Date(this.dateValue.from),
+        end: new Date(this.dateValue.to),
+      })
+    ) {
+      classObj['is-selected'] = true;
+    }
+    if (!day.selectable) {
+      classObj['is-disabled'] = true;
+    }
+    if (isSameDay(dayDate, nowDate)) {
+      classObj['is-today'] = true;
+    }
+    if (
+      (!this.dateValue.to && isSameDay(dayDate, new Date(this.dateValue.from))) ||
+      (this.dateValue.to && !this.dateValue.from && isSameDay(dayDate, this.dateValue.from) && isSameDay(dayDate, this.dateValue.to)) ||
+      (this.dateValue.to && this.dateValue.from && isSameDay(dayDate, this.dateValue.from))
+    ) {
+      classObj['is-first-range'] = true;
+      classObj['is-edge-range'] = true;
+    }
+    if (this.dateValue.to && isSameDay(dayDate, this.dateValue.to)) {
+      classObj['is-last-range'] = true;
+      classObj['is-edge-range'] = true;
+    }
+
+    if (
+      this.hoverRange.length === 2 &&
+      isWithinInterval(dayDate, {
+        start: new Date(this.hoverRange[0]),
+        end: new Date(this.hoverRange[1])
+      })
+    ) {
+      classObj['is-in-range'] = true;
+    }
+    return classObj;
   }
 }
