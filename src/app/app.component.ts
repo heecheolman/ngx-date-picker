@@ -1,7 +1,7 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { ko } from 'date-fns/locale';
 import {
-  addDays, addMonths, eachDayOfInterval,
+  addDays, addMonths, addYears, eachDayOfInterval,
   endOfMonth, endOfWeek,
   format,
   isAfter,
@@ -10,7 +10,7 @@ import {
   isSameMonth,
   isValid, isWithinInterval,
   parse, parseISO,
-  startOfMonth, startOfWeek,
+  startOfMonth, startOfWeek, startOfYear,
   subDays
 } from 'date-fns';
 
@@ -74,6 +74,7 @@ export class AppComponent implements OnInit {
   ];
   currentPanel: PanelType;
   monthDays: any[] = [];
+  yearMonths: any[] = [];
   current: any;
   hoverRange: any[] = [];
   theme = {
@@ -96,7 +97,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.initDateValue();
-    this.updateCalendarDays();
+    this.onPanelChange(this.panel);
     this.cssProps();
   }
 
@@ -105,7 +106,7 @@ export class AppComponent implements OnInit {
     this.current = isValid(parse(this.dateValue.to, 'yyyy-MM-dd', new Date())) || this.now;
   }
 
-  private updateCalendarDays() {
+  private updateCalendar() {
     const firstDayOfMonth = startOfMonth(new Date(this.current));
     const lastDayOfMonth = endOfMonth(new Date(this.current));
     const firstWeekDay = startOfWeek(new Date(firstDayOfMonth), { ...weekStartConfig, ...localeConfig });
@@ -137,11 +138,33 @@ export class AppComponent implements OnInit {
     };
 
     this.monthDays = sliceWeek(calendarDays);
-    console.log('this.monthDays :: ', this.monthDays);
+  }
+  private updateMonthCalendar() {
+    const months = [];
+    let month = startOfYear(new Date(this.current));
+    for (let i = 0; i < 12; i++) {
+      months.push({
+        date: month,
+      });
+      month = addMonths(month, 1);
+    }
+    this.yearMonths = months;
+    console.log('months :: ', months);
   }
 
-  onPanelChange(panel: Panels) {
+  onPanelChange(panel: PanelType) {
     this.currentPanel = panel;
+    switch (this.currentPanel) {
+      case Panels.range:
+      case Panels.day:
+        this.updateCalendar();
+        break;
+      case Panels.month:
+        this.updateMonthCalendar();
+        break;
+      default:
+        this.updateCalendar();
+    }
     this.dateValue = {
       from: null,
       to: null
@@ -150,7 +173,13 @@ export class AppComponent implements OnInit {
 
   onChangeMonth(diffMonth: number) {
     this.current = addMonths(new Date(this.current), diffMonth);
-    this.updateCalendarDays();
+    this.updateCalendar();
+  }
+
+  onChangeYear(diffYear: number) {
+    this.current = addYears(new Date(this.current), diffYear);
+    this.updateCalendar();
+    this.updateMonthCalendar();
   }
 
   onSelectDay(date) {
@@ -170,6 +199,14 @@ export class AppComponent implements OnInit {
         this.hoverRange = [];
       }
     }
+  }
+
+  onSelectMonth(month) {
+    this.dateValue = {
+      from: startOfMonth(month.date),
+      to: endOfMonth(month.date)
+    };
+    this.current = this.dateValue.to;
   }
 
   onHoverizeDay(date) {
@@ -198,8 +235,8 @@ export class AppComponent implements OnInit {
     Object.entries(styles).map(([key, style]) => this.elementRef.nativeElement.style.setProperty(key, style));
   }
 
-  dayCssProvider(day): any {
-    const classObj: any = {
+  dayCssProvider(day: any): any {
+    const cssClassObj: any = {
       'is-current-month': false,
       'is-selected': false,
       'is-disabled': false,
@@ -212,7 +249,7 @@ export class AppComponent implements OnInit {
     const dayDate = new Date(day.date);
     const nowDate = new Date(this.now);
     if (day.currentMonth) {
-      classObj['is-current-month'] = true;
+      cssClassObj['is-current-month'] = true;
     }
     if (
       this.dateValue.from && this.dateValue.to &&
@@ -221,25 +258,25 @@ export class AppComponent implements OnInit {
         end: new Date(this.dateValue.to),
       })
     ) {
-      classObj['is-selected'] = true;
+      cssClassObj['is-selected'] = true;
     }
     if (!day.selectable) {
-      classObj['is-disabled'] = true;
+      cssClassObj['is-disabled'] = true;
     }
     if (isSameDay(dayDate, nowDate)) {
-      classObj['is-today'] = true;
+      cssClassObj['is-today'] = true;
     }
     if (
       (!this.dateValue.to && isSameDay(dayDate, new Date(this.dateValue.from))) ||
       (this.dateValue.to && !this.dateValue.from && isSameDay(dayDate, this.dateValue.from) && isSameDay(dayDate, this.dateValue.to)) ||
       (this.dateValue.to && this.dateValue.from && isSameDay(dayDate, this.dateValue.from))
     ) {
-      classObj['is-first-range'] = true;
-      classObj['is-edge-range'] = true;
+      cssClassObj['is-first-range'] = true;
+      cssClassObj['is-edge-range'] = true;
     }
     if (this.dateValue.to && isSameDay(dayDate, this.dateValue.to)) {
-      classObj['is-last-range'] = true;
-      classObj['is-edge-range'] = true;
+      cssClassObj['is-last-range'] = true;
+      cssClassObj['is-edge-range'] = true;
     }
 
     if (
@@ -249,8 +286,13 @@ export class AppComponent implements OnInit {
         end: new Date(this.hoverRange[1])
       })
     ) {
-      classObj['is-in-range'] = true;
+      cssClassObj['is-in-range'] = true;
     }
-    return classObj;
+    return cssClassObj;
+  }
+  monthCssProvider(month: any): any {
+    return {
+      'is-selected': this.dateValue.from && this.dateValue.to && isWithinInterval(month.date, { start: this.dateValue.from, end: this.dateValue.to }),
+    };
   }
 }

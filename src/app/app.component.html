@@ -93,6 +93,30 @@
       </div>
       <div *ngSwitchCase="'month'">
         <h3>month</h3>
+        <div class="calendar-header">
+          <div class="calendar-arrow calendar-arrow-previous" (click)="onChangeYear(-1)">
+            <svg version="1.1" viewBox="0 0 8 13" class="svg-icon svg-fill" style="width: 7.4px; height: 12px;">
+              <path pid="0" d="M7.766 1.658L3.008 6.094l4.437 4.758-1.448 1.35L.21 5.997 6.416.21z"></path>
+            </svg>
+          </div>
+          <span class="calendar-month-name">{{ this.current | date: 'yyyy년': '': 'ko' }}</span>
+          <div class="calendar-arrow calendar-arrow-next" (click)="onChangeYear(1)">
+            <svg version="1.1" viewBox="0 0 8 13" class="svg-icon svg-fill" style="width: 7.4px; height: 12px;">
+              <path pid="0" d="M.048 1.658l4.758 4.436L.37 10.852l1.448 1.35 5.787-6.205L1.4.21z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="calendar-months">
+          <ng-container *ngFor="let month of yearMonths">
+            <div
+              class="month"
+              [ngClass]="monthCssProvider(month.date)"
+              (click)="onSelectMonth(month)"
+            >
+              <span>{{ month.date | date: 'yyyy년 M월': '': 'ko' }}</span>
+            </div>
+          </ng-container>
+        </div>
       </div>
       <div *ngSwitchCase="'quarter'">
         <h3>quarter</h3>
