@@ -149,7 +149,6 @@ export class AppComponent implements OnInit {
       month = addMonths(month, 1);
     }
     this.yearMonths = months;
-    console.log('months :: ', months);
   }
 
   onPanelChange(panel: PanelType) {
